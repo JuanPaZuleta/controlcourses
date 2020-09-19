@@ -3,6 +3,7 @@ package com.classmanagement.controlcourses.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.validation.constraints.Size;
 
 //table structures in this case is for Course table (Entity)
 
@@ -16,6 +17,7 @@ public class Course {
     private String name;
 
     @Column
+    @Size(max = 4)
     private String code;
 
     public Integer getIdCourse() {
