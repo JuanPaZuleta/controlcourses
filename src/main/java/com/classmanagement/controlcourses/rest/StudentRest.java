@@ -27,24 +27,35 @@ public class StudentRest {
     @Autowired // injected StudentDAO dependency
     private StudentDAO studentDAO;
 
-    @PostMapping("/post") // this is a create url example //localhost:8080/Students/post
+    @PostMapping("/POST") // this is a create url example //localhost:8080/Students/post
     public ResponseEntity<Student> save(@Valid @RequestBody Student student) {
-        Student obj = studentDAO.save(student);
-        return new ResponseEntity<Student>(obj, HttpStatus.OK);
+        if(student.getAge() < 18){
+            //i can't Response a String text like= "The age of student need is more than 18."
+            return new ResponseEntity<Student>(HttpStatus.NOT_ACCEPTABLE);
+        }else{
+            Student obj = studentDAO.save(student);
+            return new ResponseEntity<Student>(obj, HttpStatus.CREATED);    
+        }
     }
 
-    @GetMapping("/get")//It's a get metod, with this you can get all Students.
+    @GetMapping("/GET")//It's a get metod, with this you can get all Students.
     public List<Student> get(){
         return studentDAO.findAll();
     }
 
-    @GetMapping("/get/{id}")//It's get by idStudent, with this metod you can find one Student.
-    public Student retrieveStudent(@PathVariable Integer id){
-        studentDAO.findById(id);
-        return studentDAO.getOne(id);
+    @GetMapping("/GET/{id}")//It's get by idStudent, with this metod you can find one Student.
+    public ResponseEntity<Student> get(@PathVariable Integer id){
+        Optional<Student> stud = studentDAO.findById(id);
+        Student student = studentDAO.getOne(id);
+        if(stud.isPresent()){
+            return new ResponseEntity<Student>(student,HttpStatus.OK);
+        }else{
+            return new ResponseEntity<Student>(student,HttpStatus.NOT_FOUND);
+        }
+
     }
-    
-    @DeleteMapping("/delete/{id}")
+
+    @DeleteMapping("/DELETE/{id}")
     public ResponseEntity<Student> delete(@PathVariable Integer id){
         Optional<Student> stud = studentDAO.findById(id);
         Student student = studentDAO.getOne(id);
@@ -56,7 +67,7 @@ public class StudentRest {
         }
     }
 
-    @PutMapping("/put")
+    @PutMapping("/PUT")
     public void put(@RequestBody Student student){  
         studentDAO.save(student);
     }

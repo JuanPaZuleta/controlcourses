@@ -28,29 +28,38 @@ public class CourseRest {
     private CourseDAO courseDAO;
 
 
-    @PostMapping("/post")
+    @PostMapping("/POST")
     public ResponseEntity<Course> save(@Valid @RequestBody Course course) {
-        Course obj = courseDAO.save(course);
-        return new ResponseEntity<Course>(obj, HttpStatus.OK);
+        if(course.getCode().length()>4){
+            return new ResponseEntity<Course>(HttpStatus.NOT_ACCEPTABLE);
+        }else{
+            Course obj = courseDAO.save(course);
+            return new ResponseEntity<Course>(obj, HttpStatus.CREATED);
+        }
+        
     }
 
-    @GetMapping("/get")//It's a get metod, with this you can get all Courses.
+    @GetMapping("/GET")//It's a get metod, with this you can get all Courses.
     public List<Course> get(){
         return courseDAO.findAll();
     }
 
-    @GetMapping("/get/{id}")//It's a get metod, with this you can get all Courses.
-    public Course retrieveCourse(@PathVariable Integer id){
-        courseDAO.findById(id);
-        return courseDAO.getOne(id);
+
+    @GetMapping("/GET/{id}")//It's a get metod, with this you can get all Courses.
+    public ResponseEntity<Course> get(@PathVariable Integer id){
+        Optional<Course> stud = courseDAO.findById(id);
+        Course course = courseDAO.getOne(id);
+        if(stud.isPresent()){
+            return new ResponseEntity<Course>(course,HttpStatus.OK);
+        }else{
+            return new ResponseEntity<Course>(course,HttpStatus.NOT_FOUND);
+        }
     }
 
-    
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/DELETE/{id}")
     public ResponseEntity<Course> delete(@PathVariable Integer id){
         Optional<Course> cours = courseDAO.findById(id);
         Course course = courseDAO.getOne(id);
-        courseDAO.deleteById(id);
         if(cours.isPresent()){
             courseDAO.deleteById(id);
             return new ResponseEntity<Course>(course,HttpStatus.OK);
@@ -59,7 +68,7 @@ public class CourseRest {
         }
     }
 
-    @PutMapping("/put")
+    @PutMapping("/PUT")
     public void put(@RequestBody Course course){
         courseDAO.save(course);
     }
